@@ -20,6 +20,7 @@ Makefile
 CMakeLists.txt.user
 
 # Dossiers de build
+build/
 build-*/
 debug/
 release/
