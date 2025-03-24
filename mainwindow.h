@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QScopedPointer>
 #include <QMap>
+#include <QLabel>
 #include "geosearch.h"
 #include "tilemap.h"
 
@@ -29,6 +30,7 @@ private:
     QScopedPointer<TileMap> _tileMap;
     QScopedPointer<GeoSearch> _geoSearch;
     QMap<QString, QPair<double, double>> _locationMap;
+    QLabel *_coordLabel;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -40,6 +42,7 @@ private slots:
     void onLocationSelected();
     void onQuitClicked();
     void onAboutClicked();
+    void updateCoordinates(double lat, double lon);
 };
 
 #endif // MAINWINDOW_H

@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QPixmap>
 #include <QMap>
+#include <QCache>
 
 class TileMap : public QWidget {
     Q_OBJECT
@@ -16,6 +17,10 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private slots:
     void tileDownloaded(QNetworkReply *reply);
@@ -31,6 +36,14 @@ private:
     int _zoom;
     int _tileSize = 256;
     QString _tileDir;
+    bool _dragging = false;
+    QPoint _lastMousePos;
+    QSet<QString> _loadingTiles;
+    QCache<QString, QPixmap> _tileCache;
+
+signals:
+    void mouseCoordinatesChanged(double lat, double lon);
+
 };
 
 #endif // TILEMAP_H
