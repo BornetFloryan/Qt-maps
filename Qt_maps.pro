@@ -10,14 +10,20 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutdialog.cpp \
+    geocontroller.cpp \
     geosearch.cpp \
     main.cpp \
     mainwindow.cpp \
+    tilecache.cpp \
     tilemap.cpp
 
 HEADERS += \
+    aboutdialog.h \
+    geocontroller.h \
     geosearch.h \
     mainwindow.h \
+    tilecache.h \
     tilemap.h
 
 # Default rules for deployment.

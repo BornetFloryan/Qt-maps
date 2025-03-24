@@ -1,11 +1,8 @@
 #include "mainwindow.h"
-#include "geosearch.h"
+#include "aboutdialog.h"
+
 #include <QMenuBar>
 #include <QMenu>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QListWidget>
 #include <QVBoxLayout>
 #include <QMessageBox>
 
@@ -16,16 +13,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     _help_menu = menuBar()->addMenu(tr("&Aide"));
 
     _quit_action = _file_menu->addAction("Quitter");
-    connect(_quit_action, &QAction::triggered, this, &MainWindow::onQuitClicked);
+    connect(_quit_action, &QAction::triggered, this, &MainWindow::quitRequested);
 
     _about_action = _help_menu->addAction("À propos");
-    connect(_about_action, &QAction::triggered, this, &MainWindow::onAboutClicked);
+    connect(_about_action, &QAction::triggered, this, &MainWindow::aboutRequested);
 
     _main_widget.reset(new QGroupBox(this));
     setCentralWidget(_main_widget.get());
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
-
     QVBoxLayout *leftLayout = new QVBoxLayout;
 
     _text_edit.reset(new QLineEdit(_main_widget.get()));
@@ -34,8 +30,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     _button.reset(new QPushButton("Rechercher", _main_widget.get()));
     leftLayout->addWidget(_button.get());
-
-    connect(_text_edit.get(), &QLineEdit::returnPressed, this, &MainWindow::onButtonClicked);
 
     _list.reset(new QListWidget(_main_widget.get()));
     leftLayout->addWidget(_list.get());
@@ -48,15 +42,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     _main_widget->setLayout(mainLayout);
 
-    _coordLabel = new QLabel("Coordonnées : ", _main_widget.get());
-    leftLayout->addWidget(_coordLabel);
+    _coordLabel.reset(new QLabel("Coordonnées : ", _main_widget.get()));
+    leftLayout->addWidget(_coordLabel.get());
+
+    _geoController.reset(new GeoController(_tileMap.get(), this));
 
     connect(_tileMap.get(), &TileMap::mouseCoordinatesChanged, this, &MainWindow::updateCoordinates);
 
-    _geoSearch.reset(new GeoSearch(this));
-    connect(_button.get(), &QPushButton::clicked, this, &MainWindow::onButtonClicked);
-    connect(_geoSearch.get(), &GeoSearch::searchFinished, this, &MainWindow::onSearchFinished);
-    connect(_list.get(), &QListWidget::itemClicked, this, &MainWindow::onLocationSelected);
+    connect(this, &MainWindow::locationChosen, _geoController.get(), &GeoController::handleLocationSelection);
+
+    connect(this, &MainWindow::searchRequested, _geoController.get(), &GeoController::searchLocation);
+
+    connect(_button.get(), &QPushButton::clicked, this, [this]() {
+        emit searchRequested(_text_edit->text());
+    });
+
+    connect(_text_edit.get(), &QLineEdit::returnPressed, this, [this]() {
+        emit searchRequested(_text_edit->text());
+    });
+
+    connect(_list.get(), &QListWidget::itemClicked, this, [this]() {
+        if (_list->currentItem()) {
+            emit locationChosen(_list->currentItem()->text());
+        }
+    });
+
+    connect(_geoController.get(), &GeoController::searchResultsReady, this, &MainWindow::displaySearchResults);
+    connect(this, &MainWindow::quitRequested, this, &QMainWindow::close);
+    connect(this, &MainWindow::aboutRequested, this, [this]() {
+        AboutDialog aboutDialog(this);
+        aboutDialog.exec();
+    });
+
 }
 
 MainWindow::~MainWindow() {}
@@ -65,14 +82,7 @@ void MainWindow::updateCoordinates(double lat, double lon) {
     _coordLabel->setText(QString("Coordonnées : %1, %2").arg(lat, 0, 'f', 6).arg(lon, 0, 'f', 6));
 }
 
-void MainWindow::onButtonClicked() {
-    QString location = _text_edit->text();
-    if (!location.isEmpty()) {
-        _geoSearch->searchLocation(location);
-    }
-}
-
-void MainWindow::onSearchFinished(const QList<QPair<QString, QPair<double, double>>> &results) {
+void MainWindow::displaySearchResults(const QList<QPair<QString, QPair<double, double>>> &results) {
     _list->clear();
     _locationMap.clear();
 
@@ -80,24 +90,4 @@ void MainWindow::onSearchFinished(const QList<QPair<QString, QPair<double, doubl
         _list->addItem(result.first);
         _locationMap[result.first] = result.second;
     }
-}
-
-void MainWindow::onLocationSelected() {
-    QString selectedLocation = _list->currentItem()->text();
-    if (_locationMap.contains(selectedLocation)) {
-        auto coords = _locationMap[selectedLocation];
-        _tileMap->setCenter(coords.first, coords.second, 12);
-    }
-}
-
-void MainWindow::onQuitClicked() {
-    close();
-}
-
-void MainWindow::onAboutClicked() {
-    QMessageBox::about(this, "À propos",
-                       "Nom: Droit au B.U.T.\n"
-                       "Auteur: Floryan Bornet\n"
-                       "Application de recherche géographique avec Qt\n"
-                       "Date: 2025");
 }

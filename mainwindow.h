@@ -3,46 +3,49 @@
 
 #include <QMainWindow>
 #include <QScopedPointer>
-#include <QMap>
 #include <QLabel>
-#include "geosearch.h"
-#include "tilemap.h"
+#include <QLineEdit>
+#include <QPushButton>
+#include <QListWidget>
+#include <QMap>
+#include<QGroupBox>
 
-class QMenu;
-class QAction;
-class QGroupBox;
-class QPushButton;
-class QLineEdit;
-class QListWidget;
+#include "tilemap.h"
+#include "geocontroller.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
-private:
-    QMenu *_file_menu;
-    QMenu *_help_menu;
-    QAction *_quit_action;
-    QAction *_about_action;
-    QScopedPointer<QGroupBox> _main_widget;
-    QScopedPointer<QPushButton> _button;
-    QScopedPointer<QLineEdit> _text_edit;
-    QScopedPointer<QListWidget> _list;
-    QScopedPointer<TileMap> _tileMap;
-    QScopedPointer<GeoSearch> _geoSearch;
-    QMap<QString, QPair<double, double>> _locationMap;
-    QLabel *_coordLabel;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void onButtonClicked();
-    void onSearchFinished(const QList<QPair<QString, QPair<double, double>>> &results);
-    void onLocationSelected();
-    void onQuitClicked();
-    void onAboutClicked();
+signals:
+    void searchRequested(const QString &location);
+    void locationChosen(const QString &location);
+    void quitRequested();
+    void aboutRequested();
+
+public slots:
     void updateCoordinates(double lat, double lon);
+    void displaySearchResults(const QList<QPair<QString, QPair<double, double>>> &results);
+
+private:
+    QScopedPointer<GeoController> _geoController;
+
+    QScopedPointer<QLineEdit> _text_edit;
+    QScopedPointer<QPushButton> _button;
+    QScopedPointer<QListWidget> _list;
+    QScopedPointer<QLabel> _coordLabel;
+    QScopedPointer<TileMap> _tileMap;
+    QScopedPointer<QGroupBox> _main_widget;
+
+    QMenu *_file_menu;
+    QMenu *_help_menu;
+    QAction *_quit_action;
+    QAction *_about_action;
+
+    QMap<QString, QPair<double, double>> _locationMap;
 };
 
 #endif // MAINWINDOW_H

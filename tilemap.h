@@ -7,6 +7,9 @@
 #include <QPixmap>
 #include <QMap>
 #include <QCache>
+#include <QTimer>
+
+#include "tilecache.h"
 
 class TileMap : public QWidget {
     Q_OBJECT
@@ -14,6 +17,9 @@ class TileMap : public QWidget {
 public:
     explicit TileMap(QWidget *parent = nullptr);
     void setCenter(double lon, double lat, int zoom);
+    int zoom() const { return _zoom; }
+    double centerLon() const { return _centerLon; }
+    double centerLat() const { return _centerLat; }
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -39,7 +45,7 @@ private:
     bool _dragging = false;
     QPoint _lastMousePos;
     QSet<QString> _loadingTiles;
-    QCache<QString, QPixmap> _tileCache;
+    TileCache _tileCache;
 
 signals:
     void mouseCoordinatesChanged(double lat, double lon);
