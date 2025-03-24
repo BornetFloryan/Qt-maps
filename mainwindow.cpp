@@ -12,13 +12,13 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Droit au B.U.T.");
 
-    _file_menu = menuBar()->addMenu(tr("&File"));
-    _help_menu = menuBar()->addMenu(tr("&Help"));
+    _file_menu = menuBar()->addMenu(tr("&Fichier"));
+    _help_menu = menuBar()->addMenu(tr("&Aide"));
 
-    _quit_action = _file_menu->addAction("Quit");
+    _quit_action = _file_menu->addAction("Quitter");
     connect(_quit_action, &QAction::triggered, this, &MainWindow::onQuitClicked);
 
-    _about_action = _help_menu->addAction("About");
+    _about_action = _help_menu->addAction("À propos");
     connect(_about_action, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
     _main_widget.reset(new QGroupBox(this));
