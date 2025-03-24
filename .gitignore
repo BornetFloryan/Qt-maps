@@ -1,0 +1,43 @@
+# Fichiers de compilation
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+
+# Fichiers générés
+*.moc
+*.qrc
+*.rcc
+*.cpp~
+*.h~
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+Makefile
+CMakeLists.txt.user
+
+# Dossiers de build
+build-*/
+debug/
+release/
+dist/
+bin/
+lib/
+
+# Fichiers de log et de cache
+*.log
+*.cache
+*.session
+*.pro.user.*
+
+# Fichiers spécifiques à Qt Creator
+.idea/
+*.creator*
+*.autosave
+
+# Fichiers système
+.DS_Store
+Thumbs.db
